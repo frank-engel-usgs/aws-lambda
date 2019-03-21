@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 import boto3
-import os
+import ospippip
 import sys
 import uuid
 import cv2
@@ -18,6 +18,8 @@ def extractFrames(video_source_path, frame_destination_path):
     os.mkdir(frame_destination_path)
  
     cap = cv2.VideoCapture(video_source_path)
+    cap.open(video_source_path)
+    print(cap.isOpened())
     count = 0
  
     while (cap.isOpened()):
@@ -27,8 +29,8 @@ def extractFrames(video_source_path, frame_destination_path):
  
         if ret == True:
             print('Read %d frame: ' % count, ret)
-			# save frame as JPEG file
-            cv2.imwrite(os.path.join(frame_destination_path, "frame{:d}.jpg".format(count)), frame)  
+            # save frame as JPEG file
+            # cv2.imwrite(os.path.join(frame_destination_path, "frame{:d}.jpg".format(count)), frame)
             count += 1
         else:
             break
@@ -41,8 +43,8 @@ def handler(event, context):
     for record in event['Records']:
         bucket = record['s3']['bucket']['name']
         key = record['s3']['object']['key']
-        download_path = '/tmp/{}/{}'.format(uuid.uuid4(), key)
-        upload_path = '/tmp/frames-{}'.format(key)
+        download_path = '/tmp/{}'.format(key)
+        upload_path = '/tmp/frames/'
         
         s3Client.download_file(globalVars['S3-SourceBucketName'], key, download_path)
         fname=key.rsplit('.', 1)[0]
@@ -53,4 +55,4 @@ def handler(event, context):
     return key
 
 if __name__ == "__main__":
-	handler(42, 42)
+    handler(42, 42)
